@@ -3,7 +3,7 @@
 //
 // Commands:
 //  hubot section(s) - full section list
-//  hubot section(s) <section> - particular section list
+//  hubot section(s) <section> - specific section list
 //
 // Author:
 //  jonathan
