@@ -1,0 +1,9 @@
+{
+  "extends": "hubot-js",
+  "rules": {
+    "strict": ["error", "never"],
+    "no-restricted-syntax": ["off", "ForInStatement"],
+    "no-use-before-define": "off",
+    "vars-on-top": "off"
+  }
+}
