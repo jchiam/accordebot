@@ -16,6 +16,7 @@ hubot section(s) <section> - specific section list
 - NodeJS
 - CloudFoundry/CLI (manual deployment): https://github.com/cloudfoundry/cli
 - generator-hubot: https://github.com/github/generator-hubot
+- Redis (for local testing)
 
 ## Running AccordeBot Locally
 
