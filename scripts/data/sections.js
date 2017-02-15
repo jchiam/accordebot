@@ -6,7 +6,7 @@ const PRIME_CEM_PROP = 'prime_cem';
 const BASS_PROP = 'bass';
 const CONTRA_GR_PROP = 'contra_gr';
 
-var list = {
+const list = {
   alto_1: ['Jonathan', 'Minmin'],
   alto_2: ['Minmin', 'Magdalene', 'Kevin'],
   alto_cem: ['Kevin'],
@@ -16,7 +16,7 @@ var list = {
   contra_gr: ['Yong Xiang']
 };
 
-var getSectionNameByProperty = prop => {
+const getSectionNameByProperty = (prop) => {
   switch (prop) {
     case 'alto_1':
       return 'Alto 1';
@@ -35,9 +35,9 @@ var getSectionNameByProperty = prop => {
     default:
       return '';
   }
-}
+};
 
-var getSectionProperty = section => {
+const getSectionProperty = (section) => {
   switch (section.toLowerCase()) {
     case 'a1':
     case 'alto1':

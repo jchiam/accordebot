@@ -12,8 +12,8 @@ const sections = require('./data/sections');
 
 module.exports = (robot) => {
   robot.respond(/\bsections?(.*)/i, (res) => {
-    let section = res.match[1].trim();
-    let attachments = [{
+    const section = res.match[1].trim();
+    const attachments = [{
       fallback: 'Accord\u00E9 Guitar Ensemble - Sections',
       title: 'Accord\u00E9 Guitar Ensemble - Sections',
       color: '#96ec21',
@@ -25,23 +25,23 @@ module.exports = (robot) => {
   });
 };
 
-var formatAllSectionFields = sectionsList => {
-  var fields = [];
-  for (var section in sectionsList) {
+let formatAllSectionFields = (sectionsList) => {
+  const fields = [];
+  for (const section in sectionsList) {
     if (sectionsList[section].length > 0) {
       fields.push({
         title: sections.getSectionNameByProperty(section),
         value: stringifyArrayToColumn(sectionsList[section]),
-        "short": true
+        short: true
       });
     }
-  };
+  }
   return fields;
 };
 
-var formatSectionFields = (sectionsList, sectionReq) => {
-  var field = [];
-  var sectionProp = sections.getSectionProperty(sectionReq);
+let formatSectionFields = (sectionsList, sectionReq) => {
+  const field = [];
+  const sectionProp = sections.getSectionProperty(sectionReq);
   if (sectionProp) {
     field.push({
       title: sections.getSectionNameByProperty(sectionProp),
@@ -49,8 +49,6 @@ var formatSectionFields = (sectionsList, sectionReq) => {
     });
   }
   return field;
-}
+};
 
-var stringifyArrayToColumn = arr => {
-  return arr.join('\n');
-}
+let stringifyArrayToColumn = arr => arr.join('\n');
