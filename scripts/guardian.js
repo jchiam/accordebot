@@ -35,7 +35,7 @@ module.exports = (robot) => {
   robot.respond(/\bguardian ?(.*)?/i, (res) => {
     const args = res.match[0].trim().split(' ');
     const cmd = args[2] ? args[2].toLowerCase() : '';
-    const name = args[3] ? args[3].toLowerCase() : '';
+    const name = args[3] ? args.slice(3).join(' ').toLowerCase() : '';
 
     if (cmd) {
       switch (cmd) {
