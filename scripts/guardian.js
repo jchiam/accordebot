@@ -12,6 +12,8 @@
 // Configuration:
 //  FB_CLIENT_ID
 //  FB_CLIENT_SECRET
+//  FIREBASE_EMAIL
+//  FIREBASE_EMAIL_PW
 //  FIREBASE_API_KEY
 //  FIREBASE_AUTH_DOMAIN
 //  FIRE_DB_URL
@@ -64,12 +66,8 @@ module.exports = (robot) => {
         return;
       }
 
-      firebase.auth().signInAnonymously().catch((error) => {
-        res.send(error.code);
-        res.send(error.message);
-      });
-
       async.waterfall([
+        cb => authenticateFirebase(cb),
         cb => getFacebookAccessToken(cb),
         cb => getFacebookID(guardian, cb),
         (facebookID, cb) => getFacebookProfilePhoto(facebookID, cb),
@@ -83,6 +81,14 @@ module.exports = (robot) => {
       });
     }
   });
+
+  let authenticateFirebase = (callback) => {
+    firebase
+      .auth()
+      .signInWithEmailAndPassword(process.env.FIREBASE_EMAIL, process.env.FIREBASE_EMAIL_PW)
+      .catch(error => callback(error));
+    callback(null);
+  };
 
   let getFacebookAccessToken = (callback) => {
     const url = `https://graph.facebook.com/oauth/access_token?client_id=${process.env.FB_CLIENT_ID}&client_secret=${process.env.FB_CLIENT_SECRET}&grant_type=client_credentials`;
