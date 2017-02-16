@@ -5,6 +5,9 @@
   "author": "Jonathan Chiam <jczjchiam@gmail.com>",
   "description": "Bot for use with accorde guitar ensemble chat on slack",
   "dependencies": {
+    "async": "^2.1.4",
+    "fbgraph": "^1.4.1",
+    "firebase": "^3.6.9",
     "hubot": "^2.19.0",
     "hubot-diagnostics": "0.0.1",
     "hubot-help": "^0.2.0",
