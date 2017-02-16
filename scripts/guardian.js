@@ -78,7 +78,7 @@ module.exports = (robot) => {
         if (err) {
           res.send(`Error: ${JSON.stringify(err)}`);
         } else {
-          res.send(attachments);
+          res.send({ attachments });
         }
       });
     }
