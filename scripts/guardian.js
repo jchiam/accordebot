@@ -35,20 +35,20 @@ module.exports = (robot) => {
   robot.respond(/\bguardian ?(.*)?/i, (res) => {
     const args = res.match[0].trim().split(' ');
     const cmd = args[2] ? args[2].toLowerCase() : '';
-    const name = args[3] ? args[3].toLowerCase() : '';
+    const name = args[3] ? args.slice(3).join(' ').toLowerCase() : '';
 
     if (cmd) {
       switch (cmd) {
         // hubot guardian reset - dethrone keeper of the key
         case 'reset':
           robot.brain.remove(REDIS_GUARDIAN_KEY);
-          res.send('Keeper of keys dethroned!');
+          res.send('Keeper of keys *dethroned!*');
           break;
         // hubot guardian set <name> - crown the keeper of the key
         case 'set':
           if (name) {
             robot.brain.set(REDIS_GUARDIAN_KEY, name);
-            res.send(`${name} is now the keeper of the key!`);
+            res.send(`*${name}* is now the keeper of the key!`);
           } else {
             res.send('I\'m not sure who you are trying to set...');
           }
@@ -78,7 +78,7 @@ module.exports = (robot) => {
         if (err) {
           res.send(`Error: ${JSON.stringify(err)}`);
         } else {
-          res.send(attachments);
+          res.send({ attachments });
         }
       });
     }
@@ -86,6 +86,7 @@ module.exports = (robot) => {
 
   let getFacebookAccessToken = (callback) => {
     const url = `https://graph.facebook.com/oauth/access_token?client_id=${process.env.FB_CLIENT_ID}&client_secret=${process.env.FB_CLIENT_SECRET}&grant_type=client_credentials`;
+
     robot.http(url).get()((err, resp) => {
       if (resp.statusCode !== 200) {
         callback(new Error(`Facebook auth failed...${process.env.FB_CLIENT_ID}`));
@@ -115,10 +116,11 @@ module.exports = (robot) => {
 
   let prepareGuardianDeclaration = (name, profilePhotoURL, callback) => {
     const attachments = [{
-      fallback: `Keeper of the key - ${name}`,
-      title: `Keeper of the key - ${name}`,
+      fallback: `Keeper of the key is ${name}`,
+      title: 'Accord\u00E9 Guitar Ensemble - The Guardian',
+      text: `Keeper of the key... :key::key::key: is *${name}*!`,
       image_url: profilePhotoURL,
-      footer: 'Brought to you by Accord\u00E9Bot'
+      mrkdwn_in: ['text']
     }];
     callback(null, attachments);
   };
