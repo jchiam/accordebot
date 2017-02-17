@@ -24,14 +24,9 @@
 const graph = require('fbgraph');
 const firebase = require('firebase');
 const async = require('async');
+const auth = require('./utils/auth');
 
 const REDIS_GUARDIAN_KEY = 'guardian';
-const FIREBASE_CONFIG = {
-  apiKey: process.env.FIREBASE_API_KEY,
-  authDomain: process.env.FIREBASE_AUTH_DOMAIN,
-  databaseURL: process.env.FIREBASE_DB_URL
-};
-firebase.initializeApp(FIREBASE_CONFIG);
 
 module.exports = (robot) => {
   robot.respond(/\bguardian ?(.*)?/i, (res) => {
@@ -67,8 +62,8 @@ module.exports = (robot) => {
       }
 
       async.waterfall([
-        cb => authenticateFirebase(cb),
-        cb => getFacebookAccessToken(cb),
+        cb => auth.authenticateFirebase(cb),
+        cb => auth.getFacebookAccessToken(robot, cb),
         cb => getFacebookID(guardian, cb),
         (facebookID, cb) => getFacebookProfilePhoto(facebookID, cb),
         (profilePhotoURL, cb) => prepareGuardianDeclaration(guardian, profilePhotoURL, cb)
@@ -82,30 +77,12 @@ module.exports = (robot) => {
     }
   });
 
-  let authenticateFirebase = (callback) => {
-    firebase
-      .auth()
-      .signInWithEmailAndPassword(process.env.FIREBASE_EMAIL, process.env.FIREBASE_EMAIL_PW)
-      .catch(error => callback(error));
-    callback(null);
-  };
-
-  let getFacebookAccessToken = (callback) => {
-    const url = `https://graph.facebook.com/oauth/access_token?client_id=${process.env.FB_CLIENT_ID}&client_secret=${process.env.FB_CLIENT_SECRET}&grant_type=client_credentials`;
-
-    robot.http(url).get()((err, resp) => {
-      if (resp.statusCode !== 200) {
-        callback(new Error(`Facebook auth failed...${process.env.FB_CLIENT_ID}`));
-      } else {
-        // graph.setAccessToken(body.split('='[1]));
-        callback(null);
-      }
-    });
-  };
-
   let getFacebookID = (name, callback) => {
-    firebase.database().ref('/facebook').on('value', (snapshot) => {
-      const facebookID = snapshot.val()[name];
+    firebase.database().ref('/facebook').child(name).on('value', (snapshot) => {
+      let facebookID;
+      if (snapshot.exists()) {
+        facebookID = snapshot.val();
+      }
       callback(null, facebookID);
     }, err => callback(err, null));
   };
@@ -127,10 +104,14 @@ module.exports = (robot) => {
         fallback: `Keeper of the key is ${name}`,
         text: `Keeper of the key... :key::key::key: is *${name}*!`,
         color: '#f4e842',
-        image_url: profilePhotoURL,
         mrkdwn_in: ['text']
       }]
     };
+
+    if (profilePhotoURL) {
+      msg.image_url = profilePhotoURL;
+    }
+
     callback(null, msg);
   };
 };
