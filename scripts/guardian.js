@@ -127,10 +127,14 @@ module.exports = (robot) => {
         fallback: `Keeper of the key is ${name}`,
         text: `Keeper of the key... :key::key::key: is *${name}*!`,
         color: '#f4e842',
-        image_url: profilePhotoURL,
         mrkdwn_in: ['text']
       }]
     };
+
+    if (profilePhotoURL) {
+      msg.image_url = profilePhotoURL;
+    }
+
     callback(null, msg);
   };
 };
