@@ -13,7 +13,7 @@ const list = {
   prime: ['Dorothy', 'Cami'],
   prime_cem: [],
   bass: ['Peixin'],
-  contra_gr: ['Yong Xiang']
+  contra_gr: ['Yong Xiang', 'Shira']
 };
 
 const getSectionNameByProperty = (prop) => {
