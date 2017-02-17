@@ -72,11 +72,11 @@ module.exports = (robot) => {
         cb => getFacebookID(guardian, cb),
         (facebookID, cb) => getFacebookProfilePhoto(facebookID, cb),
         (profilePhotoURL, cb) => prepareGuardianDeclaration(guardian, profilePhotoURL, cb)
-      ], (err, attachments) => {
+      ], (err, msg) => {
         if (err) {
           res.send(`Error: ${JSON.stringify(err)}`);
         } else {
-          res.send({ attachments });
+          res.send(msg);
         }
       });
     }
@@ -121,13 +121,16 @@ module.exports = (robot) => {
   };
 
   let prepareGuardianDeclaration = (name, profilePhotoURL, callback) => {
-    const attachments = [{
-      fallback: `Keeper of the key is ${name}`,
-      title: 'Accord\u00E9 Guitar Ensemble - The Guardian',
-      text: `Keeper of the key... :key::key::key: is *${name}*!`,
-      image_url: profilePhotoURL,
-      mrkdwn_in: ['text']
-    }];
-    callback(null, attachments);
+    const msg = {
+      text: '*Accord\u00E9 Guitar Ensemble - The Guardian*',
+      attachments: [{
+        fallback: `Keeper of the key is ${name}`,
+        text: `Keeper of the key... :key::key::key: is *${name}*!`,
+        color: '#f4e842',
+        image_url: profilePhotoURL,
+        mrkdwn_in: ['text']
+      }]
+    };
+    callback(null, msg);
   };
 };
