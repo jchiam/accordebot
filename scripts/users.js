@@ -3,6 +3,7 @@
 //
 // Commands:
 //  hubot user(s) - returns a mapping of all slack users and respective id
+//  hubot alias(es) - returns a list of the aliases of all slack users
 //
 // Dependencies:
 //  "async": "^2.1.4"
@@ -14,57 +15,78 @@
 //  jonathan
 
 const async = require('async');
+const auth = require('./utils/auth');
+const userUtils = require('./utils/users');
 
 module.exports = (robot) => {
+  // hubot user(s) - returns a mapping of all slack users and respective id
   robot.respond(/\busers?/i, (res) => {
     async.waterfall([
-      cb => getUsers(cb)
-    ], (err, users) => {
+      cb => userUtils.getSlackUsers(robot, cb),
+      (users, cb) => prepareUsersMsg(users, cb)
+    ], (err, msg) => {
       if (err) {
         res.send(`Error: ${err.message}`);
       } else {
-        const fields = [];
-        users.forEach((user) => {
-          fields.push({
-            value: `*${user.name}*: _${user.id}_`,
-            short: true
-          });
-        });
-
-        res.send({
-          text: '*Accord\u00E9 Guitar Ensemble - Users*',
-          attachments: [{
-            fallback: 'Accord\u00E9 Guitar Ensemble - Users',
-            color: '#1479DE',
-            fields,
-            footer: 'Brought to you by Accord\u00E9Bot',
-            mrkdwn_in: ['fields']
-          }]
-        });
+        res.send(msg);
       }
     });
   });
 
-  let getUsers = (callback) => {
-    if (process.env.SLACK_API_TOKEN) {
-      const url = `https://slack.com/api/users.list?token=${process.env.SLACK_API_TOKEN}`;
-      robot.http(url).get()((err, resp, body) => {
-        if (resp.statusCode !== 200) {
-          callback(new Error('Failed to retrieve user list from Slack...'), null);
-        } else {
-          const userDetails = JSON.parse(body).members;
-          const users = [];
-          userDetails.forEach((userDetail) => {
-            if (!userDetail.is_bot && userDetail.id !== 'USLACKBOT') {
-              users.push({ name: userDetail.name, id: userDetail.id });
-            }
-          });
+  // hubot alias(es) - returns a list of the aliases of all slack users
+  robot.respond(/\balias(es)?/i, (res) => {
+    async.waterfall([
+      cb => auth.authenticateFirebase(cb),
+      cb => userUtils.getUserAliases(cb),
+      (aliases, cb) => prepareAliasesMsg(aliases, cb)
+    ], (err, msg) => {
+      if (err) {
+        res.send(`Error: ${err.message}`);
+      } else {
+        res.send(msg);
+      }
+    });
+  });
 
-          callback(null, users);
-        }
+  let prepareUsersMsg = (users, callback) => {
+    const fields = [];
+    users.forEach((user) => {
+      fields.push({
+        value: `*${user.name}*: _${user.id}_`,
+        short: true
       });
-    } else {
-      callback(new Error('Slack API token not set...'), null);
-    }
+    });
+
+    callback(null, {
+      text: '*Accord\u00E9 Guitar Ensemble - Users*',
+      attachments: [{
+        fallback: 'Accord\u00E9 Guitar Ensemble - Users',
+        color: '#1479DE',
+        fields,
+        footer: 'Brought to you by Accord\u00E9Bot',
+        mrkdwn_in: ['fields']
+      }]
+    });
+  };
+
+  let prepareAliasesMsg = (aliases, callback) => {
+    const fields = [];
+    aliases.forEach((user) => {
+      fields.push({
+        title: user.name,
+        value: user.alias.join(', '),
+        short: true
+      });
+    });
+
+    callback(null, {
+      text: '*Accord\u00E9 Guitar Ensemble - User Aliases*',
+      attachments: [{
+        fallback: 'Accord\u00E9 Guitar Ensemble - Users Aliases',
+        color: '#1479DE',
+        fields,
+        footer: 'Brought to you by Accord\u00E9Bot'
+      }]
+    });
   };
 };
