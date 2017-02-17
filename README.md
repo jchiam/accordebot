@@ -13,6 +13,7 @@ hubot section(s) <section> - specific section list
 hubot guardian - keeper of the key
 hubot guardian reset - dethrone keeper of the key
 hubot guardian set <name> - crown the keeper of the key
+hubot user(s) - full user list with slack IDs
 ```
 
 ## Requirements
