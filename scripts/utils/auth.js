@@ -24,10 +24,9 @@ const getFacebookAccessToken = (robot, callback) => {
   robot.http(url).get()((err, resp) => {
     if (resp.statusCode !== 200) {
       callback(new Error(`Facebook auth failed...${process.env.FB_CLIENT_ID}`));
-    } else {
-      // graph.setAccessToken(body.split('='[1]));
-      callback(null);
     }
+    // graph.setAccessToken(body.split('='[1]));
+    callback(null);
   });
 };
 

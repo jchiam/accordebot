@@ -9,15 +9,6 @@
 // Dependencies:
 //  "async": "^2.1.4"
 //
-// Configuration:
-//  FB_CLIENT_ID
-//  FB_CLIENT_SECRET
-//  FIREBASE_EMAIL
-//  FIREBASE_EMAIL_PW
-//  FIREBASE_API_KEY
-//  FIREBASE_AUTH_DOMAIN
-//  FIRE_DB_URL
-//
 // Author:
 //  jonathan
 
@@ -109,7 +100,7 @@ module.exports = (robot) => {
     };
 
     if (profilePhotoURL) {
-      msg.image_url = profilePhotoURL;
+      msg.attachments.image_url = profilePhotoURL;
     }
 
     callback(null, msg);
