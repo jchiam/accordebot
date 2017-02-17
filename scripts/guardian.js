@@ -74,7 +74,7 @@ module.exports = (robot) => {
         (profilePhotoURL, cb) => prepareGuardianDeclaration(guardian, profilePhotoURL, cb)
       ], (err, msg) => {
         if (err) {
-          res.send(`Error: ${JSON.stringify(err)}`);
+          res.send(`Error: ${err.message}`);
         } else {
           res.send(msg);
         }
