@@ -4,6 +4,7 @@
 // Commands:
 //  hubot user(s) - returns a mapping of all slack users and respective id
 //  hubot alias(es) - returns a list of the aliases of all slack users
+//  hubot key <name> - returns the NoSQL key of the query name
 //
 // Dependencies:
 //  "async": "^2.1.4"
@@ -44,6 +45,21 @@ module.exports = (robot) => {
         res.send(`Error: ${err.message}`);
       } else {
         res.send(msg);
+      }
+    });
+  });
+
+  // hubot key <name> - returns the NoSQL key of the query name
+  robot.respond(/\bkey(.*)/i, (res) => {
+    const query = res.match[1].trim().toLowerCase();
+    async.waterfall([
+      cb => auth.authenticateFirebase(cb),
+      cb => userUtils.getUserKey(query, cb)
+    ], (err, key) => {
+      if (err) {
+        res.send(`Error: ${err.message}`);
+      } else {
+        res.send(key);
       }
     });
   });

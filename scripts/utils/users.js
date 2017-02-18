@@ -42,6 +42,24 @@ const getUserAliases = (callback) => {
   }, err => callback(err, null));
 };
 
+const getUserKey = (query, callback) => {
+  firebase.database().ref('/users').on('value', (snapshot) => {
+    const name = query.toLowerCase();
+    if (snapshot.exists()) {
+      const users = snapshot.val();
+      for (const user in users) {
+        if (user.split(':')[0] === name || (users[user].alias && users[user].alias.includes(name))) {
+          callback(null, user);
+          return;
+        }
+      }
+      callback(new Error(`No matching user matching ${query} found...`), null);
+    } else {
+      callback(new Error('Unable to retrieve user key...'));
+    }
+  });
+};
+
 // const addRoleToUser = (robot, name, role) => {
 //   const user = robot.brain.userForName(name);
 //   if (user) {
@@ -70,5 +88,6 @@ const getUserAliases = (callback) => {
 
 exports.getSlackUsers = getSlackUsers;
 exports.getUserAliases = getUserAliases;
+exports.getUserKey = getUserKey;
 // exports.addRoleToUser = addRoleToUser;
 // exports.removeRoleFromUser = removeRoleFromUser;
