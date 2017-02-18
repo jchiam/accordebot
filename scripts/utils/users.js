@@ -1,4 +1,5 @@
 const firebase = require('firebase');
+const graph = require('fbgraph');
 
 const getSlackUsers = (robot, callback) => {
   if (process.env.SLACK_API_TOKEN) {
@@ -60,6 +61,26 @@ const getUserKey = (query, callback) => {
   });
 };
 
+const getFacebookID = (name, callback) => {
+  firebase.database().ref('/facebook').child(name).on('value', (snapshot) => {
+    let facebookID;
+    if (snapshot.exists()) {
+      facebookID = snapshot.val();
+    }
+    callback(null, facebookID);
+  }, err => callback(err, null));
+};
+
+const getFacebookProfilePhoto = (facebookID, callback) => {
+  graph.get(`${facebookID}/picture?type=large`, (err, resp) => {
+    if (err) {
+      callback(err, null);
+    } else {
+      callback(null, resp.location);
+    }
+  });
+};
+
 // const addRoleToUser = (robot, name, role) => {
 //   const user = robot.brain.userForName(name);
 //   if (user) {
@@ -89,5 +110,7 @@ const getUserKey = (query, callback) => {
 exports.getSlackUsers = getSlackUsers;
 exports.getUserAliases = getUserAliases;
 exports.getUserKey = getUserKey;
+exports.getFacebookID = getFacebookID;
+exports.getFacebookProfilePhoto = getFacebookProfilePhoto;
 // exports.addRoleToUser = addRoleToUser;
 // exports.removeRoleFromUser = removeRoleFromUser;
