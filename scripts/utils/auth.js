@@ -8,6 +8,13 @@ const FIREBASE_CONFIG = {
 firebase.initializeApp(FIREBASE_CONFIG);
 
 const authenticateFirebase = (callback) => {
+  const unsubscribe = firebase.auth().onAuthStateChanged((user) => {
+    if (user) {
+      unsubscribe();
+      callback(null);
+    }
+  });
+
   // sign in to firebase if necessary
   if (firebase.auth().currentUser == null) {
     firebase
@@ -15,7 +22,6 @@ const authenticateFirebase = (callback) => {
       .signInWithEmailAndPassword(process.env.FIREBASE_EMAIL, process.env.FIREBASE_EMAIL_PW)
       .catch(error => callback(error));
   }
-  callback(null);
 };
 
 const getFacebookAccessToken = (robot, callback) => {
