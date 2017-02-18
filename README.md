@@ -14,6 +14,7 @@ hubot guardian - keeper of the key
 hubot guardian reset - dethrone keeper of the key
 hubot guardian set <name> - crown the keeper of the key
 hubot user(s) - full user list with slack IDs
+hubot alias(es) - returns a list of the aliases of all slack users 
 ```
 
 ## Requirements
