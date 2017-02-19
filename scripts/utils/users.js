@@ -54,9 +54,19 @@ const getUserKey = (query, callback) => {
           return;
         }
       }
-      callback(new Error(`No matching user matching ${query} found...`), null);
+      callback(new Error(`No user matching _${query}_ found...`), null);
     } else {
       callback(new Error('Unable to retrieve user key...'));
+    }
+  });
+};
+
+const getUserName = (key, callback) => {
+  firebase.database().ref(`/users/${key}/name`).on('value', (snapshot) => {
+    if (snapshot.exists()) {
+      callback(null, snapshot.val());
+    } else {
+      callback(new Error(`Unable to get name for ${key}...`), null);
     }
   });
 };
@@ -110,6 +120,7 @@ const getFacebookProfilePhoto = (facebookID, callback) => {
 exports.getSlackUsers = getSlackUsers;
 exports.getUserAliases = getUserAliases;
 exports.getUserKey = getUserKey;
+exports.getUserName = getUserName;
 exports.getFacebookID = getFacebookID;
 exports.getFacebookProfilePhoto = getFacebookProfilePhoto;
 // exports.addRoleToUser = addRoleToUser;

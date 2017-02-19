@@ -34,8 +34,18 @@ module.exports = (robot) => {
         // hubot guardian set <name> - crown the keeper of the key
         case 'set':
           if (name) {
-            robot.brain.set(REDIS_GUARDIAN_KEY, name);
-            res.send(`*${name}* is now the keeper of the key!`);
+            async.waterfall([
+              cb => auth.authenticateFirebase(cb),
+              cb => userUtils.getUserKey(name, cb),
+              (key, cb) => userUtils.getUserName(key, cb)
+            ], (err, userName) => {
+              if (err) {
+                res.send(`Error: ${err.message}`);
+              } else {
+                robot.brain.set(REDIS_GUARDIAN_KEY, userName);
+                res.send(`*${userName}* is now the keeper of the key!`);
+              }
+            });
           } else {
             res.send('I\'m not sure who you are trying to set...');
           }
