@@ -1,3 +1,4 @@
+const async = require('async');
 const firebase = require('firebase');
 const graph = require('fbgraph');
 
@@ -135,6 +136,19 @@ const getFacebookProfilePhoto = (facebookID, callback) => {
   });
 };
 
+const getFacebookProfilePhotoByKey = (key, callback) => {
+  async.waterfall([
+    cb => getFacebookID(key, cb),
+    (facebookID, cb) => getFacebookProfilePhoto(facebookID, cb)
+  ], (err, profilePhotoURL) => {
+    if (err) {
+      callback(err);
+    } else {
+      callback(null, profilePhotoURL);
+    }
+  });
+};
+
 // const addRoleToUser = (robot, name, role) => {
 //   const user = robot.brain.userForName(name);
 //   if (user) {
@@ -168,5 +182,6 @@ exports.getUserKeyByName = getUserKeyByName;
 exports.getUserName = getUserName;
 exports.getFacebookID = getFacebookID;
 exports.getFacebookProfilePhoto = getFacebookProfilePhoto;
+exports.getFacebookProfilePhotoByKey = getFacebookProfilePhotoByKey;
 // exports.addRoleToUser = addRoleToUser;
 // exports.removeRoleFromUser = removeRoleFromUser;
