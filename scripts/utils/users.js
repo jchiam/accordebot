@@ -8,7 +8,7 @@ const getSlackUsers = (robot, callback) => {
     const url = `https://slack.com/api/users.list?token=${process.env.SLACK_API_TOKEN}`;
     robot.http(url).get()((err, resp, body) => {
       if (resp.statusCode !== 200) {
-        callback(new Error('Failed to retrieve user list from Slack...'), null);
+        callback(new Error('Failed to retrieve user list from Slack...'));
       } else {
         const userDetails = JSON.parse(body).members;
         const users = [];
@@ -22,7 +22,7 @@ const getSlackUsers = (robot, callback) => {
       }
     });
   } else {
-    callback(new Error('Slack API token not set...'), null);
+    callback(new Error('Slack API token not set...'));
   }
 };
 
@@ -40,14 +40,14 @@ const getUserAliases = (callback) => {
       }
       callback(null, list);
     } else {
-      callback(new Error('Unable to retrieve user...'), null);
+      callback(new Error('Unable to retrieve user...'));
     }
-  }, err => callback(err, null));
+  }, err => callback(err));
 };
 
 const getUserKey = (query, callback) => {
   if (query == null || query.length === 0) {
-    callback(new Error('_getUserKey_ - Invalid query supplied...'), null);
+    callback(new Error('_getUserKey_ - Invalid query supplied...'));
     return;
   }
 
@@ -61,16 +61,16 @@ const getUserKey = (query, callback) => {
           return;
         }
       }
-      callback(new Error(`No user matching _${query}_ found...`), null);
+      callback(new Error(`No user matching _${query}_ found...`));
     } else {
-      callback(new Error('Unable to retrieve user key...'), null);
+      callback(new Error('Unable to retrieve user key...'));
     }
-  }, err => callback(err, null));
+  }, err => callback(err));
 };
 
 const getUserKeyByName = (name, callback) => {
   if (name == null || name.length === 0) {
-    callback(new Error('_getUserKeyByName_ - Invalid name supplied...'), null);
+    callback(new Error('_getUserKeyByName_ - Invalid name supplied...'));
     return;
   }
 
@@ -83,16 +83,16 @@ const getUserKeyByName = (name, callback) => {
           return;
         }
       }
-      callback(new Error(`No user name matching _${name}_ found...`), null);
+      callback(new Error(`No user name matching _${name}_ found...`));
     } else {
-      callback(new Error('Unable to retrieve user key...'), null);
+      callback(new Error('Unable to retrieve user key...'));
     }
-  }, err => callback(err, null));
+  }, err => callback(err));
 };
 
 const getUserName = (key, callback) => {
   if (key == null || key.length === 0) {
-    callback(new Error('_getUserName_ - Invalid key supplied...'), null);
+    callback(new Error('_getUserName_ - Invalid key supplied...'));
     return;
   }
 
@@ -100,9 +100,11 @@ const getUserName = (key, callback) => {
     if (snapshot.exists()) {
       callback(null, snapshot.val());
     } else {
-      callback(new Error(`Unable to get name for ${key}...`), null);
+      callback(new Error(`Unable to get name for ${key}...`));
     }
-  }, err => callback(err, null));
+  }, err => callback(err));
+};
+
 const getUserSectionByKey = (key, callback) => {
   if (key == null || key.length === 0) {
     callback(new Error('_getUserSectionByKey_ - Invalid key supplied...'));
@@ -134,7 +136,7 @@ const getUserSectionByKey = (key, callback) => {
 
 const getFacebookID = (key, callback) => {
   if (key == null || key.length === 0) {
-    callback(new Error('_getFacebookID_ - Invalid key supplied...'), null);
+    callback(new Error('_getFacebookID_ - Invalid key supplied...'));
     return;
   }
 
@@ -144,20 +146,20 @@ const getFacebookID = (key, callback) => {
       facebookID = snapshot.val().facebook;
       callback(null, facebookID);
     } else {
-      callback(new Error(`No user with key _${key}_ found...`), null);
+      callback(new Error(`No user with key _${key}_ found...`));
     }
-  }, err => callback(err, null));
+  }, err => callback(err));
 };
 
 const getFacebookProfilePhoto = (facebookID, callback) => {
   if (facebookID == null || facebookID.length === 0) {
-    callback(new Error('_getFacebookProfilePhoto_ - Invalid id supplied...'), null);
+    callback(new Error('_getFacebookProfilePhoto_ - Invalid id supplied...'));
     return;
   }
 
   graph.get(`${facebookID}/picture?type=large`, (err, resp) => {
     if (err) {
-      callback(err, null);
+      callback(err);
     } else {
       callback(null, resp.location);
     }
