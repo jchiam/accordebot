@@ -2,6 +2,7 @@
 //  User-related queries
 //
 // Commands:
+//  hubot who( )is <name> - returns relevant information and facebook picture of queries name
 //  hubot user(s) - returns a mapping of all slack users and respective id
 //  hubot alias(es) - returns a list of the aliases of all slack users
 //  hubot key <name> - returns the NoSQL key of the query name
@@ -20,6 +21,36 @@ const auth = require('./utils/auth');
 const userUtils = require('./utils/users');
 
 module.exports = (robot) => {
+  // hubot who( )is <name> - returns relevant information and facebook picture of queries name
+  robot.respond(/\bwho ?is(.*)/i, (res) => {
+    const name = res.match[1].trim();
+    if (name) {
+      async.waterfall([
+        cb => auth.authenticateFirebaseAndFacebook(robot, cb),
+        cb => userUtils.getUserKey(name, cb),
+        (key, cb) => async.parallel({
+          name: callback => userUtils.getUserName(key, callback),
+          photo: callback => userUtils.getFacebookProfilePhotoByKey(key, callback)
+        }, (err, profile) => {
+          if (err) {
+            cb(err);
+          } else {
+            cb(null, profile);
+          }
+        }),
+        (profile, cb) => prepareProfileMsg(profile, cb)
+      ], (err, msg) => {
+        if (err) {
+          res.send(`Error: ${err.message}`);
+        } else {
+          res.send(msg);
+        }
+      });
+    } else {
+      res.send('I\'m not sure who you are trying query...');
+    }
+  });
+
   // hubot user(s) - returns a mapping of all slack users and respective id
   robot.respond(/\busers?/i, (res) => {
     async.waterfall([
@@ -63,6 +94,22 @@ module.exports = (robot) => {
       }
     });
   });
+
+  let prepareProfileMsg = (profile, callback) => {
+    const msg = {
+      text: `*Accord\u00E9 Guitar Ensemble - ${profile.name}*`,
+      attachments: [{
+        fallback: `Accord\u00E9 Guitar Ensemble - ${profile.name}`,
+        color: '#1479DE'
+      }]
+    };
+
+    if (profile.photo) {
+      msg.attachments[0].image_url = profile.photo;
+    }
+
+    callback(null, msg);
+  };
 
   let prepareUsersMsg = (users, callback) => {
     const fields = [];

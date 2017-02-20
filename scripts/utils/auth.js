@@ -1,3 +1,4 @@
+const async = require('async');
 const firebase = require('firebase');
 
 const FIREBASE_CONFIG = {
@@ -24,7 +25,7 @@ const authenticateFirebase = (callback) => {
   }
 };
 
-const getFacebookAccessToken = (robot, callback) => {
+const authenticateFacebook = (robot, callback) => {
   const url = `https://graph.facebook.com/oauth/access_token?client_id=${process.env.FB_CLIENT_ID}&client_secret=${process.env.FB_CLIENT_SECRET}&grant_type=client_credentials`;
 
   robot.http(url).get()((err, resp) => {
@@ -36,5 +37,19 @@ const getFacebookAccessToken = (robot, callback) => {
   });
 };
 
+const authenticateFirebaseAndFacebook = (robot, callback) => {
+  async.parallel([
+    cb => authenticateFirebase(cb),
+    cb => authenticateFacebook(robot, cb)
+  ], (err) => {
+    if (err) {
+      callback(err);
+    } else {
+      callback(null);
+    }
+  });
+};
+
 exports.authenticateFirebase = authenticateFirebase;
-exports.getFacebookAccessToken = getFacebookAccessToken;
+exports.authenticateFacebook = authenticateFacebook;
+exports.authenticateFirebaseAndFacebook = authenticateFirebaseAndFacebook;

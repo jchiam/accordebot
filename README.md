@@ -13,8 +13,9 @@ hubot section(s) <section> - specific section list
 hubot guardian - keeper of the key
 hubot guardian reset - dethrone keeper of the key
 hubot guardian set <name> - crown the keeper of the key
+hubot who( )is <name> - returns relevant information and facebook picture of queries name
 hubot user(s) - full user list with slack IDs
-hubot alias(es) - returns a list of the aliases of all slack users 
+hubot alias(es) - returns a list of the aliases of all slack users
 ```
 
 ## Requirements

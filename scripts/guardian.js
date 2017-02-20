@@ -62,11 +62,9 @@ module.exports = (robot) => {
       }
 
       async.waterfall([
-        cb => auth.authenticateFirebase(cb),
-        cb => auth.getFacebookAccessToken(robot, cb),
+        cb => auth.authenticateFirebaseAndFacebook(robot, cb),
         cb => userUtils.getUserKeyByName(guardian, cb),
-        (key, cb) => userUtils.getFacebookID(key, cb),
-        (facebookID, cb) => userUtils.getFacebookProfilePhoto(facebookID, cb),
+        (key, cb) => userUtils.getFacebookProfilePhotoByKey(key, cb),
         (profilePhotoURL, cb) => prepareGuardianDeclaration(guardian, profilePhotoURL, cb)
       ], (err, msg) => {
         if (err) {
