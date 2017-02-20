@@ -12,7 +12,7 @@ const list = {
   alto_cem: ['Kevin'],
   prime: ['Dorothy', 'Cami'],
   prime_cem: [],
-  bass: ['Peixin'],
+  bass: ['Pei Xin'],
   contra_gr: ['Yong Xiang', 'Shira']
 };
 

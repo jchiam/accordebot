@@ -12,10 +12,9 @@
 // Author:
 //  jonathan
 
-const graph = require('fbgraph');
-const firebase = require('firebase');
 const async = require('async');
 const auth = require('./utils/auth');
+const userUtils = require('./utils/users');
 
 const REDIS_GUARDIAN_KEY = 'guardian';
 
@@ -35,8 +34,18 @@ module.exports = (robot) => {
         // hubot guardian set <name> - crown the keeper of the key
         case 'set':
           if (name) {
-            robot.brain.set(REDIS_GUARDIAN_KEY, name);
-            res.send(`*${name}* is now the keeper of the key!`);
+            async.waterfall([
+              cb => auth.authenticateFirebase(cb),
+              cb => userUtils.getUserKey(name, cb),
+              (key, cb) => userUtils.getUserName(key, cb)
+            ], (err, userName) => {
+              if (err) {
+                res.send(`Error: ${err.message}`);
+              } else {
+                robot.brain.set(REDIS_GUARDIAN_KEY, userName);
+                res.send(`*${userName}* is now the keeper of the key!`);
+              }
+            });
           } else {
             res.send('I\'m not sure who you are trying to set...');
           }
@@ -55,8 +64,9 @@ module.exports = (robot) => {
       async.waterfall([
         cb => auth.authenticateFirebase(cb),
         cb => auth.getFacebookAccessToken(robot, cb),
-        cb => getFacebookID(guardian, cb),
-        (facebookID, cb) => getFacebookProfilePhoto(facebookID, cb),
+        cb => userUtils.getUserKeyByName(guardian, cb),
+        (key, cb) => userUtils.getFacebookID(key, cb),
+        (facebookID, cb) => userUtils.getFacebookProfilePhoto(facebookID, cb),
         (profilePhotoURL, cb) => prepareGuardianDeclaration(guardian, profilePhotoURL, cb)
       ], (err, msg) => {
         if (err) {
@@ -67,26 +77,6 @@ module.exports = (robot) => {
       });
     }
   });
-
-  let getFacebookID = (name, callback) => {
-    firebase.database().ref('/facebook').child(name).on('value', (snapshot) => {
-      let facebookID;
-      if (snapshot.exists()) {
-        facebookID = snapshot.val();
-      }
-      callback(null, facebookID);
-    }, err => callback(err, null));
-  };
-
-  let getFacebookProfilePhoto = (facebookID, callback) => {
-    graph.get(`${facebookID}/picture?type=large`, (err, resp) => {
-      if (err) {
-        callback(err, null);
-      } else {
-        callback(null, resp.location);
-      }
-    });
-  };
 
   let prepareGuardianDeclaration = (name, profilePhotoURL, callback) => {
     const msg = {
@@ -100,7 +90,7 @@ module.exports = (robot) => {
     };
 
     if (profilePhotoURL) {
-      msg.attachments.image_url = profilePhotoURL;
+      msg.attachments[0].image_url = profilePhotoURL;
     }
 
     callback(null, msg);

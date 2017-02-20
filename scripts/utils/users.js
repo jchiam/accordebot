@@ -1,4 +1,5 @@
 const firebase = require('firebase');
+const graph = require('fbgraph');
 
 const getSlackUsers = (robot, callback) => {
   if (process.env.SLACK_API_TOKEN) {
@@ -43,6 +44,11 @@ const getUserAliases = (callback) => {
 };
 
 const getUserKey = (query, callback) => {
+  if (query == null || query.length === 0) {
+    callback(new Error('_getUserKey_ - Invalid query supplied...'), null);
+    return;
+  }
+
   firebase.database().ref('/users').on('value', (snapshot) => {
     const name = query.toLowerCase();
     if (snapshot.exists()) {
@@ -53,9 +59,78 @@ const getUserKey = (query, callback) => {
           return;
         }
       }
-      callback(new Error(`No matching user matching ${query} found...`), null);
+      callback(new Error(`No user matching _${query}_ found...`), null);
     } else {
-      callback(new Error('Unable to retrieve user key...'));
+      callback(new Error('Unable to retrieve user key...'), null);
+    }
+  }, err => callback(err, null));
+};
+
+const getUserKeyByName = (name, callback) => {
+  if (name == null || name.length === 0) {
+    callback(new Error('_getUserKeyByName_ - Invalid name supplied...'), null);
+    return;
+  }
+
+  firebase.database().ref('/users').on('value', (snapshot) => {
+    if (snapshot.exists()) {
+      const users = snapshot.val();
+      for (const user in users) {
+        if (users[user].name === name) {
+          callback(null, user);
+          return;
+        }
+      }
+      callback(new Error(`No user name matching _${name}_ found...`), null);
+    } else {
+      callback(new Error('Unable to retrieve user key...'), null);
+    }
+  }, err => callback(err, null));
+};
+
+const getUserName = (key, callback) => {
+  if (key == null || key.length === 0) {
+    callback(new Error('_getUserName_ - Invalid key supplied...'), null);
+    return;
+  }
+
+  firebase.database().ref(`/users/${key}/name`).on('value', (snapshot) => {
+    if (snapshot.exists()) {
+      callback(null, snapshot.val());
+    } else {
+      callback(new Error(`Unable to get name for ${key}...`), null);
+    }
+  }, err => callback(err, null));
+};
+
+const getFacebookID = (key, callback) => {
+  if (key == null || key.length === 0) {
+    callback(new Error('_getFacebookID_ - Invalid key supplied...'), null);
+    return;
+  }
+
+  firebase.database().ref(`/users/${key}`).on('value', (snapshot) => {
+    let facebookID;
+    if (snapshot.exists()) {
+      facebookID = snapshot.val().facebook;
+      callback(null, facebookID);
+    } else {
+      callback(new Error(`No user with key _${key}_ found...`), null);
+    }
+  }, err => callback(err, null));
+};
+
+const getFacebookProfilePhoto = (facebookID, callback) => {
+  if (facebookID == null || facebookID.length === 0) {
+    callback(new Error('_getFacebookProfilePhoto_ - Invalid id supplied...'), null);
+    return;
+  }
+
+  graph.get(`${facebookID}/picture?type=large`, (err, resp) => {
+    if (err) {
+      callback(err, null);
+    } else {
+      callback(null, resp.location);
     }
   });
 };
@@ -89,5 +164,9 @@ const getUserKey = (query, callback) => {
 exports.getSlackUsers = getSlackUsers;
 exports.getUserAliases = getUserAliases;
 exports.getUserKey = getUserKey;
+exports.getUserKeyByName = getUserKeyByName;
+exports.getUserName = getUserName;
+exports.getFacebookID = getFacebookID;
+exports.getFacebookProfilePhoto = getFacebookProfilePhoto;
 // exports.addRoleToUser = addRoleToUser;
 // exports.removeRoleFromUser = removeRoleFromUser;
