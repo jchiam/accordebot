@@ -1,4 +1,6 @@
+const async = require('async');
 const firebase = require('firebase');
+const userUtils = require('../utils/users');
 
 const ALTO1_PROP = 'alto1';
 const ALTO2_PROP = 'alto2';
@@ -7,16 +9,6 @@ const PRIME_PROP = 'prime';
 const PRIME_CEM_PROP = 'prime_cem';
 const BASS_PROP = 'bass';
 const CONTRA_GR_PROP = 'contra_gr';
-
-const list = {
-  alto_1: ['Jonathan', 'Minmin'],
-  alto_2: ['Minmin', 'Magdalene', 'Kevin'],
-  alto_cem: ['Kevin'],
-  prime: ['Dorothy', 'Cami'],
-  prime_cem: [],
-  bass: ['Pei Xin'],
-  contra_gr: ['Yong Xiang', 'Shira']
-};
 
 const getSections = (section, callback) => {
   if (section == null || section.length === 0) {
@@ -101,7 +93,22 @@ const getSectionProperty = (section) => {
   }
 };
 
-exports.list = list;
+const replaceSectionWithPreferredNames = (section, callback) => {
+  if (section.length === 0) {
+    callback(null, section);
+    return;
+  }
+
+  async.map(section, userUtils.getUserNameByName, (err, formattedSection) => {
+    if (err) {
+      callback(err);
+    } else {
+      callback(null, formattedSection);
+    }
+  });
+};
+
 exports.getSections = getSections;
 exports.getSectionNameByProperty = getSectionNameByProperty;
 exports.getSectionProperty = getSectionProperty;
+exports.replaceSectionWithPreferredNames = replaceSectionWithPreferredNames;
