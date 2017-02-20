@@ -44,6 +44,11 @@ const getUserAliases = (callback) => {
 };
 
 const getUserKey = (query, callback) => {
+  if (query == null || query.length === 0) {
+    callback(new Error('_getUserKey_ - Invalid query supplied...'), null);
+    return;
+  }
+
   firebase.database().ref('/users').on('value', (snapshot) => {
     const name = query.toLowerCase();
     if (snapshot.exists()) {
@@ -56,9 +61,11 @@ const getUserKey = (query, callback) => {
       }
       callback(new Error(`No user matching _${query}_ found...`), null);
     } else {
-      callback(new Error('Unable to retrieve user key...'));
+      callback(new Error('Unable to retrieve user key...'), null);
     }
-  });
+  }, err => callback(err, null));
+};
+
 const getUserKeyByName = (name, callback) => {
   if (name == null || name.length === 0) {
     callback(new Error('_getUserKeyByName_ - Invalid name supplied...'), null);
@@ -82,26 +89,43 @@ const getUserKeyByName = (name, callback) => {
 };
 
 const getUserName = (key, callback) => {
+  if (key == null || key.length === 0) {
+    callback(new Error('_getUserName_ - Invalid key supplied...'), null);
+    return;
+  }
+
   firebase.database().ref(`/users/${key}/name`).on('value', (snapshot) => {
     if (snapshot.exists()) {
       callback(null, snapshot.val());
     } else {
       callback(new Error(`Unable to get name for ${key}...`), null);
     }
-  });
+  }, err => callback(err, null));
 };
 
-const getFacebookID = (name, callback) => {
-  firebase.database().ref('/facebook').child(name).on('value', (snapshot) => {
+const getFacebookID = (key, callback) => {
+  if (key == null || key.length === 0) {
+    callback(new Error('_getFacebookID_ - Invalid key supplied...'), null);
+    return;
+  }
+
+  firebase.database().ref(`/users/${key}`).on('value', (snapshot) => {
     let facebookID;
     if (snapshot.exists()) {
-      facebookID = snapshot.val();
+      facebookID = snapshot.val().facebook;
+      callback(null, facebookID);
+    } else {
+      callback(new Error(`No user with key _${key}_ found...`), null);
     }
-    callback(null, facebookID);
   }, err => callback(err, null));
 };
 
 const getFacebookProfilePhoto = (facebookID, callback) => {
+  if (facebookID == null || facebookID.length === 0) {
+    callback(new Error('_getFacebookProfilePhoto_ - Invalid id supplied...'), null);
+    return;
+  }
+
   graph.get(`${facebookID}/picture?type=large`, (err, resp) => {
     if (err) {
       callback(err, null);
