@@ -30,6 +30,7 @@ module.exports = (robot) => {
         cb => userUtils.getUserKey(name, cb),
         (key, cb) => async.parallel({
           name: callback => userUtils.getUserName(key, callback),
+          section: callback => userUtils.getUserSectionByKey(key, callback),
           photo: callback => userUtils.getFacebookProfilePhotoByKey(key, callback)
         }, (err, profile) => {
           if (err) {
@@ -100,7 +101,12 @@ module.exports = (robot) => {
       text: `*Accord\u00E9 Guitar Ensemble - ${profile.name}*`,
       attachments: [{
         fallback: `Accord\u00E9 Guitar Ensemble - ${profile.name}`,
-        color: '#1479DE'
+        color: '#1479DE',
+        fields: [{
+          value: `*Section(s):* ${profile.section.join(', ')}`,
+          short: false
+        }],
+        mrkdwn_in: ['fields']
       }]
     };
 

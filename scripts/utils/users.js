@@ -1,6 +1,7 @@
 const async = require('async');
 const firebase = require('firebase');
 const graph = require('fbgraph');
+const sectionUtils = require('../data/sections');
 
 const getSlackUsers = (robot, callback) => {
   if (process.env.SLACK_API_TOKEN) {
@@ -102,6 +103,33 @@ const getUserName = (key, callback) => {
       callback(new Error(`Unable to get name for ${key}...`), null);
     }
   }, err => callback(err, null));
+const getUserSectionByKey = (key, callback) => {
+  if (key == null || key.length === 0) {
+    callback(new Error('_getUserSectionByKey_ - Invalid key supplied...'));
+    return;
+  }
+
+  const name = key.split(':')[0];
+  async.waterfall([
+    cb => sectionUtils.getSections('', cb)
+  ], (err, sections) => {
+    if (err) {
+      callback(err);
+    } else {
+      const userSections = [];
+      for (const section in sections) {
+        if (sections[section].includes(name)) {
+          userSections.push(sectionUtils.getSectionNameByProperty(section));
+        }
+      }
+
+      if (userSections.length === 0) {
+        callback(new Error(`Unable to find section of _${name}_...`));
+        return;
+      }
+      callback(null, userSections);
+    }
+  });
 };
 
 const getFacebookID = (key, callback) => {
@@ -180,6 +208,7 @@ exports.getUserAliases = getUserAliases;
 exports.getUserKey = getUserKey;
 exports.getUserKeyByName = getUserKeyByName;
 exports.getUserName = getUserName;
+exports.getUserSectionByKey = getUserSectionByKey;
 exports.getFacebookID = getFacebookID;
 exports.getFacebookProfilePhoto = getFacebookProfilePhoto;
 exports.getFacebookProfilePhotoByKey = getFacebookProfilePhotoByKey;

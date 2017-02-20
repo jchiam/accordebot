@@ -1,5 +1,7 @@
-const ALTO1_PROP = 'alto_1';
-const ALTO2_PROP = 'alto_2';
+const firebase = require('firebase');
+
+const ALTO1_PROP = 'alto1';
+const ALTO2_PROP = 'alto2';
 const ALTO_CEM_PROP = 'alto_cem';
 const PRIME_PROP = 'prime';
 const PRIME_CEM_PROP = 'prime_cem';
@@ -16,11 +18,32 @@ const list = {
   contra_gr: ['Yong Xiang', 'Shira']
 };
 
+const getSections = (section, callback) => {
+  if (section == null || section.length === 0) {
+    firebase.database().ref('/sections').on('value', (snapshot) => {
+      if (snapshot.exists()) {
+        callback(null, snapshot.val());
+      } else {
+        callback(new Error('Failed to retrieve sections...'));
+      }
+    });
+    return;
+  }
+
+  firebase.database().ref(`/sections/${section}`).on('value', (snapshot) => {
+    if (snapshot.exists()) {
+      callback(null, snapshot.val());
+    } else {
+      callback(new Error(`Invalid section - ${section}`));
+    }
+  });
+};
+
 const getSectionNameByProperty = (prop) => {
   switch (prop) {
-    case 'alto_1':
+    case 'alto1':
       return 'Alto 1';
-    case 'alto_2':
+    case 'alto2':
       return 'Alto 2';
     case 'alto_cem':
       return 'Alto Cembalo';
@@ -79,5 +102,6 @@ const getSectionProperty = (section) => {
 };
 
 exports.list = list;
+exports.getSections = getSections;
 exports.getSectionNameByProperty = getSectionNameByProperty;
 exports.getSectionProperty = getSectionProperty;
