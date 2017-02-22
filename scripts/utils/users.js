@@ -92,6 +92,28 @@ const getUserKeyByName = (name, callback) => {
   }, err => callback(err));
 };
 
+const getUserKeyByID = (id, callback) => {
+  if (id == null || id.lenght === 0) {
+    callback(new Error('_getUserKeyByID_ - Invalid id supplied...'));
+    return;
+  }
+
+  firebase.database().ref('/users').on('value', (snapshot) => {
+    if (snapshot.exists()) {
+      const users = snapshot.val();
+      for (const user in users) {
+        if (user.includes(id)) {
+          callback(null, user);
+          return;
+        }
+      }
+      callback(new Error(`User with id ${id} does not exist...`));
+    } else {
+      callback(new Error(`Unable to get user key for id ${id}...`));
+    }
+  });
+};
+
 const getUserName = (key, callback) => {
   if (key == null || key.length === 0) {
     callback(new Error('_getUserName_ - Invalid key supplied...'));
@@ -122,6 +144,26 @@ const getUserNameByName = (query, callback) => {
     } else {
       callback(null, name);
     }
+  });
+};
+
+const getUserNameByID = (id, callback) => {
+  if (id == null || id.length === 0) {
+    callback(new Error('_getUserNameByID_ - Invalid id supplied...'));
+    return;
+  }
+
+  firebase.database().ref('/users').on('value', (snapshot) => {
+    if (snapshot.exists()) {
+      const users = snapshot.val();
+      for (const user in users) {
+        if (user.includes(id)) {
+          callback(null, users[user].name);
+          return;
+        }
+      }
+    }
+    callback(new Error(`Unable to get user name of id ${id}...`));
   });
 };
 
@@ -233,8 +275,10 @@ exports.getSlackUsers = getSlackUsers;
 exports.getUserAliases = getUserAliases;
 exports.getUserKey = getUserKey;
 exports.getUserKeyByName = getUserKeyByName;
+exports.getUserKeyByID = getUserKeyByID;
 exports.getUserName = getUserName;
 exports.getUserNameByName = getUserNameByName;
+exports.getUserNameByID = getUserNameByID;
 exports.getUserSectionByKey = getUserSectionByKey;
 exports.getFacebookID = getFacebookID;
 exports.getFacebookProfilePhoto = getFacebookProfilePhoto;

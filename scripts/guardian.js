@@ -15,6 +15,7 @@
 const async = require('async');
 const auth = require('./utils/auth');
 const userUtils = require('./utils/users');
+const roleUtils = require('./utils/roles');
 
 const REDIS_GUARDIAN_KEY = 'guardian';
 
@@ -34,17 +35,39 @@ module.exports = (robot) => {
         // hubot guardian set <name> - crown the keeper of the key
         case 'set':
           if (name) {
+            // verify admin
             async.waterfall([
               cb => auth.authenticateFirebase(cb),
-              cb => userUtils.getUserKey(name, cb),
-              (key, cb) => userUtils.getUserName(key, cb)
-            ], (err, userName) => {
+              cb => userUtils.getUserNameByID(res.message.user.id, cb),
+              (userName, cb) => roleUtils.isUserRole(userName, roleUtils.ADMIN, cb)
+            ], (err, isAdmin) => {
               if (err) {
                 res.send(`Error: ${err.message}`);
-              } else {
-                robot.brain.set(REDIS_GUARDIAN_KEY, userName);
-                res.send(`*${userName}* is now the keeper of the key!`);
+                return;
+              } else if (!isAdmin) {
+                res.send('Nono! Only *Admins* can set the guardian!');
+                return;
               }
+
+              // set the guardian
+              async.waterfall([
+                cb => userUtils.getUserKey(name, cb),
+                (key, cb) => userUtils.getUserName(key, cb)
+              ], (setErr, userName) => {
+                if (setErr) {
+                  res.send(`Error: ${err.message}`);
+                } else {
+                  async.waterfall([
+                    cb => setGuardian(userName, cb)
+                  ], (error) => {
+                    if (error) {
+                      res.send(`Error: ${err.message}`);
+                    } else {
+                      res.send(`*${userName}* is now the keeper of the key!`);
+                    }
+                  });
+                }
+              });
             });
           } else {
             res.send('I\'m not sure who you are trying to set...');
@@ -75,6 +98,19 @@ module.exports = (robot) => {
       });
     }
   });
+
+  let setGuardian = (name, callback) => {
+    async.waterfall([
+      cb => roleUtils.setUserRole(name, roleUtils.GUARDIAN, cb)
+    ], (err) => {
+      if (err) {
+        callback(err);
+      } else {
+        robot.brain.set(REDIS_GUARDIAN_KEY, name);
+        callback();
+      }
+    });
+  };
 
   let prepareGuardianDeclaration = (name, profilePhotoURL, callback) => {
     const msg = {
