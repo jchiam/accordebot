@@ -75,7 +75,8 @@ let processAllSections = (res) => {
     for (const sect in results) {
       multiSectionFields.push({
         title: sectionUtils.getSectionNameByProperty(sect),
-        value: stringifyArrayToColumn(results[sect])
+        value: stringifyArrayToColumn(results[sect]),
+        short: true
       });
     }
     res.send(prepareSectionMsg(multiSectionFields));
