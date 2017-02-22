@@ -3,6 +3,8 @@ const firebase = require('firebase');
 const graph = require('fbgraph');
 const sectionUtils = require('./sections');
 
+const getKeyNameFromKey = key => key.split(':')[0];
+
 const getSlackUsers = (robot, callback) => {
   if (process.env.SLACK_API_TOKEN) {
     const url = `https://slack.com/api/users.list?token=${process.env.SLACK_API_TOKEN}`;
@@ -223,6 +225,10 @@ const getFacebookProfilePhotoByKey = (key, callback) => {
 //   return false;
 // };
 
+// SYNCHRONOUS FUNCTIONS
+exports.getKeyNameFromKey = getKeyNameFromKey;
+
+// ASYNCHRONOUS FUNCTIONS
 exports.getSlackUsers = getSlackUsers;
 exports.getUserAliases = getUserAliases;
 exports.getUserKey = getUserKey;

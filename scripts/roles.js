@@ -36,7 +36,7 @@ module.exports = (robot) => {
       if (err) {
         res.send(`Error: ${err.message}`);
       } else {
-        res.send(JSON.stringify(msg));
+        res.send(msg);
       }
     });
   });
