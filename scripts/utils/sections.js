@@ -93,22 +93,6 @@ const getSectionProperty = (section) => {
   }
 };
 
-const replaceSectionWithPreferredNames = (section, callback) => {
-  if (section.length === 0) {
-    callback(null, section);
-    return;
-  }
-
-  async.map(section, userUtils.getUserNameByName, (err, formattedSection) => {
-    if (err) {
-      callback(err);
-    } else {
-      callback(null, formattedSection);
-    }
-  });
-};
-
 exports.getSections = getSections;
 exports.getSectionNameByProperty = getSectionNameByProperty;
 exports.getSectionProperty = getSectionProperty;
-exports.replaceSectionWithPreferredNames = replaceSectionWithPreferredNames;

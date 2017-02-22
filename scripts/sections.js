@@ -12,6 +12,7 @@
 //  jonathan
 
 const async = require('async');
+const utils = require('./utils/utils');
 const auth = require('./utils/auth');
 const sectionUtils = require('./utils/sections');
 
@@ -36,7 +37,7 @@ let processSingleSection = (res, section) => {
   async.waterfall([
     cb => auth.authenticateFirebase(cb),
     cb => sectionUtils.getSections(parsedSection, cb),
-    (sect, cb) => sectionUtils.replaceSectionWithPreferredNames(sect, cb)
+    (sect, cb) => utils.replaceArrWithPreferredNames(sect, cb)
   ], (err, result) => {
     if (err) {
       res.send(`Error: ${err.message}...`);
@@ -57,7 +58,7 @@ let processAllSections = (res) => {
     cb => sectionUtils.getSections('', cb),
     (sections, cb) => async.mapValues(
       sections,
-      (sect, key, callback) => sectionUtils.replaceSectionWithPreferredNames(sect, callback),
+      (names, key, callback) => utils.replaceArrWithPreferredNames(names, callback),
       (err, results) => {
         if (err) {
           cb(err);
