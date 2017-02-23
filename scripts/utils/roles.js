@@ -33,8 +33,20 @@ const getUserRoles = (key, callback) => {
   });
 };
 
-const isUserRole = (key, role, callback) => {
-  const name = userUtils.getKeyNameFromKey(key);
+const setUserRole = (name, role, callback) => {
+  const userRole = {};
+  userRole[role] = name;
+  firebase.database().ref('/roles').child(role)
+    .set([name], (err) => {
+      if (err) {
+        callback(err);
+        return;
+      }
+    });
+  callback();
+};
+
+const isUserRole = (name, role, callback) => {
   firebase.database().ref(`/roles/${role}`).on('value', (snapshot) => {
     if (snapshot.exists()) {
       callback(null, snapshot.val().includes(name));
@@ -48,4 +60,5 @@ exports.ADMIN = ADMIN;
 exports.GUARDIAN = GUARDIAN;
 exports.getRoles = getRoles;
 exports.getUserRoles = getUserRoles;
+exports.setUserRole = setUserRole;
 exports.isUserRole = isUserRole;
