@@ -39,13 +39,13 @@ module.exports = (robot) => {
             async.waterfall([
               cb => auth.authenticateFirebase(cb),
               cb => userUtils.getUserNameByID(res.message.user.id, cb),
-              (userName, cb) => roleUtils.isUserRole(userName, roleUtils.ADMIN, cb)
-            ], (err, isAdmin) => {
+              (userName, cb) => checkSetGuardianAuthorisation(userName, cb)
+            ], (err, authorised) => {
               if (err) {
                 res.send(`Error: ${err.message}`);
                 return;
-              } else if (!isAdmin) {
-                res.send('Nono! Only *Admins* can set the guardian!');
+              } else if (!authorised) {
+                res.send('Nono! Only *Admins* and the *Guardian* can set the guardian!');
                 return;
               }
 
@@ -108,6 +108,21 @@ module.exports = (robot) => {
       } else {
         robot.brain.set(REDIS_GUARDIAN_KEY, name);
         callback();
+      }
+    });
+  };
+
+  let checkSetGuardianAuthorisation = (name, callback) => {
+    async.mapValues({
+      isAdmin: roleUtils.ADMIN,
+      isGuardian: roleUtils.GUARDIAN
+    }, (role, key, cb) => {
+      roleUtils.isUserRole(name, role, cb);
+    }, (err, authorised) => {
+      if (err) {
+        callback(err);
+      } else {
+        callback(null, authorised.isAdmin || authorised.isGuardian);
       }
     });
   };
