@@ -3,6 +3,8 @@ const firebase = require('firebase');
 const graph = require('fbgraph');
 const sectionUtils = require('./sections');
 
+const usersRef = firebase.database().ref('/users');
+
 const getKeyNameFromKey = key => key.split(':')[0];
 
 const getSlackUsers = (robot, callback) => {
@@ -29,7 +31,7 @@ const getSlackUsers = (robot, callback) => {
 };
 
 const getUserAliases = (callback) => {
-  firebase.database().ref('/users').on('value', (snapshot) => {
+  usersRef.once('value', (snapshot) => {
     if (snapshot.exists()) {
       const users = snapshot.val();
       const list = [];
@@ -53,7 +55,7 @@ const getUserKey = (query, callback) => {
     return;
   }
 
-  firebase.database().ref('/users').on('value', (snapshot) => {
+  usersRef.once('value', (snapshot) => {
     const name = query.toLowerCase();
     if (snapshot.exists()) {
       const users = snapshot.val();
@@ -76,7 +78,7 @@ const getUserKeyByName = (name, callback) => {
     return;
   }
 
-  firebase.database().ref('/users').on('value', (snapshot) => {
+  usersRef.once('value', (snapshot) => {
     if (snapshot.exists()) {
       const users = snapshot.val();
       for (const user in users) {
@@ -98,7 +100,7 @@ const getUserKeyByID = (id, callback) => {
     return;
   }
 
-  firebase.database().ref('/users').on('value', (snapshot) => {
+  usersRef.once('value', (snapshot) => {
     if (snapshot.exists()) {
       const users = snapshot.val();
       for (const user in users) {
@@ -111,7 +113,7 @@ const getUserKeyByID = (id, callback) => {
     } else {
       callback(new Error(`Unable to get user key for id ${id}...`));
     }
-  });
+  }, err => callback(err));
 };
 
 const getUserName = (key, callback) => {
@@ -120,7 +122,7 @@ const getUserName = (key, callback) => {
     return;
   }
 
-  firebase.database().ref(`/users/${key}/name`).on('value', (snapshot) => {
+  usersRef.child(`${key}/name`).once('value', (snapshot) => {
     if (snapshot.exists()) {
       callback(null, snapshot.val());
     } else {
@@ -153,7 +155,7 @@ const getUserNameByID = (id, callback) => {
     return;
   }
 
-  firebase.database().ref('/users').on('value', (snapshot) => {
+  usersRef.once('value', (snapshot) => {
     if (snapshot.exists()) {
       const users = snapshot.val();
       for (const user in users) {
@@ -164,7 +166,7 @@ const getUserNameByID = (id, callback) => {
       }
     }
     callback(new Error(`Unable to get user name of id ${id}...`));
-  });
+  }, err => callback(err));
 };
 
 const getUserSectionByKey = (key, callback) => {
@@ -202,7 +204,7 @@ const getFacebookID = (key, callback) => {
     return;
   }
 
-  firebase.database().ref('/users').child(key).on('value', (snapshot) => {
+  usersRef.child(key).once('value', (snapshot) => {
     let facebookID;
     if (snapshot.exists()) {
       facebookID = snapshot.val().facebook;
