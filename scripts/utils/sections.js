@@ -1,6 +1,4 @@
-const async = require('async');
 const firebase = require('firebase');
-const userUtils = require('../utils/users');
 
 const ALTO1_PROP = 'alto1';
 const ALTO2_PROP = 'alto2';
@@ -22,7 +20,7 @@ const getSections = (section, callback) => {
     return;
   }
 
-  firebase.database().ref(`/sections/${section}`).on('value', (snapshot) => {
+  firebase.database().ref('/sections').child(section).on('value', (snapshot) => {
     if (snapshot.exists()) {
       callback(null, snapshot.val());
     } else {

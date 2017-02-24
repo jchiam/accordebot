@@ -47,7 +47,7 @@ const setUserRole = (name, role, callback) => {
 };
 
 const isUserRole = (name, role, callback) => {
-  firebase.database().ref(`/roles/${role}`).on('value', (snapshot) => {
+  firebase.database().ref('/roles').child(role).on('value', (snapshot) => {
     if (snapshot.exists()) {
       callback(null, snapshot.val().includes(name));
     } else {

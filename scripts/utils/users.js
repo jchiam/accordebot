@@ -202,7 +202,7 @@ const getFacebookID = (key, callback) => {
     return;
   }
 
-  firebase.database().ref(`/users/${key}`).on('value', (snapshot) => {
+  firebase.database().ref('/users').child(key).on('value', (snapshot) => {
     let facebookID;
     if (snapshot.exists()) {
       facebookID = snapshot.val().facebook;
