@@ -243,32 +243,6 @@ const getFacebookProfilePhotoByKey = (key, callback) => {
   });
 };
 
-// const addRoleToUser = (robot, name, role) => {
-//   const user = robot.brain.userForName(name);
-//   if (user) {
-//     if (user.roles == null || user.roles === undefined) {
-//       user.roles = [];
-//     }
-//     user.roles.push(role);
-//     return true;
-//   }
-//   return false;
-// };
-//
-// const removeRoleFromUser = (robot, name, role) => {
-//   const user = robot.brain.userForName(name);
-//   if (user) {
-//     if (user.roles != null && user.roles !== undefined) {
-//       const index = user.roles.indexOf(role);
-//       if (index > -1) {
-//         user.roles.splice(index, 1);
-//       }
-//     }
-//     return true;
-//   }
-//   return false;
-// };
-
 // SYNCHRONOUS FUNCTIONS
 exports.getKeyNameFromKey = getKeyNameFromKey;
 
