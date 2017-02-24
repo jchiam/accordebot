@@ -29,25 +29,41 @@ module.exports = (robot) => {
       switch (cmd) {
         // hubot guardian reset - dethrone keeper of the key
         case 'reset':
-          if (robot.brain.get(REDIS_GUARDIAN_KEY)) {
-            const guardian = robot.brain.get(REDIS_GUARDIAN_KEY);
-            async.waterfall([
-              cb => auth.authenticateFirebase(cb),
-              cb => roleUtils.removeUserRole(guardian, roleUtils.GUARDIAN, cb)
-            ], (err) => {
-              if (err) {
-                res.send(`Error: ${err.message}`);
-              } else {
-                robot.brain.remove(REDIS_GUARDIAN_KEY);
-                res.send('Keeper of keys *dethroned!*');
-              }
-            });
-          }
+          // verify admin or guardian
+          async.waterfall([
+            cb => auth.authenticateFirebase(cb),
+            cb => userUtils.getUserNameByID(res.message.user.id, cb),
+            (userName, cb) => checkResetGuardianAuthorisation(userName, cb)
+          ], (err, authorised) => {
+            if (err) {
+              res.send(`Error: ${err.message}`);
+              return;
+            } else if (!authorised) {
+              res.send('Nono! Only *Admins* can reset the guardian!');
+              return;
+            }
+
+            // reset the guardian
+            if (robot.brain.get(REDIS_GUARDIAN_KEY)) {
+              const guardian = robot.brain.get(REDIS_GUARDIAN_KEY);
+              async.waterfall([
+                cb => auth.authenticateFirebase(cb),
+                cb => roleUtils.removeUserRole(guardian, roleUtils.GUARDIAN, cb)
+              ], (resetErr) => {
+                if (resetErr) {
+                  res.send(`Error: ${resetErr.message}`);
+                } else {
+                  robot.brain.remove(REDIS_GUARDIAN_KEY);
+                  res.send('Keeper of keys *dethroned!*');
+                }
+              });
+            }
+          });
           break;
         // hubot guardian set <name> - crown the keeper of the key
         case 'set':
           if (name) {
-            // verify admin
+            // verify admin or guardian
             async.waterfall([
               cb => auth.authenticateFirebase(cb),
               cb => userUtils.getUserNameByID(res.message.user.id, cb),
@@ -120,6 +136,20 @@ module.exports = (robot) => {
       } else {
         robot.brain.set(REDIS_GUARDIAN_KEY, name);
         callback();
+      }
+    });
+  };
+
+  let checkResetGuardianAuthorisation = (name, callback) => {
+    async.mapValues({
+      isAdmin: roleUtils.ADMIN
+    }, (role, key, cb) => {
+      roleUtils.isUserRole(name, role, cb);
+    }, (err, authorised) => {
+      if (err) {
+        callback(err);
+      } else {
+        callback(null, authorised.isAdmin);
       }
     });
   };
