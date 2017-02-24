@@ -8,25 +8,27 @@ const PRIME_CEM_PROP = 'prime_cem';
 const BASS_PROP = 'bass';
 const CONTRA_GR_PROP = 'contra_gr';
 
+const sectionsRef = firebase.database().ref('/sections');
+
 const getSections = (section, callback) => {
   if (section == null || section.length === 0) {
-    firebase.database().ref('/sections').on('value', (snapshot) => {
+    sectionsRef.once('value', (snapshot) => {
       if (snapshot.exists()) {
         callback(null, snapshot.val());
       } else {
         callback(new Error('Failed to retrieve sections...'));
       }
-    });
+    }, err => callback(err));
     return;
   }
 
-  firebase.database().ref('/sections').child(section).on('value', (snapshot) => {
+  sectionsRef.child(section).once('value', (snapshot) => {
     if (snapshot.exists()) {
       callback(null, snapshot.val());
     } else {
       callback(new Error(`Invalid section - ${section}`));
     }
-  });
+  }, err => callback(err));
 };
 
 const getSectionNameByProperty = (prop) => {
