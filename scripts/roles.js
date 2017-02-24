@@ -21,16 +21,6 @@ module.exports = (robot) => {
     async.waterfall([
       cb => auth.authenticateFirebase(cb),
       cb => roleUtils.getRoles(cb),
-      (roles, cb) => async.mapValues(
-        roles,
-        (names, key, callback) => utils.replaceArrWithPreferredNames(names, callback),
-        (err, results) => {
-          if (err) {
-            cb(err);
-          } else {
-            cb(null, results);
-          }
-        }),
       (roles, cb) => prepareRolesMsg(roles, cb)
     ], (err, msg) => {
       if (err) {

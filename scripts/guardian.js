@@ -29,8 +29,20 @@ module.exports = (robot) => {
       switch (cmd) {
         // hubot guardian reset - dethrone keeper of the key
         case 'reset':
-          robot.brain.remove(REDIS_GUARDIAN_KEY);
-          res.send('Keeper of keys *dethroned!*');
+          if (robot.brain.get(REDIS_GUARDIAN_KEY)) {
+            const guardian = robot.brain.get(REDIS_GUARDIAN_KEY);
+            async.waterfall([
+              cb => auth.authenticateFirebase(cb),
+              cb => roleUtils.removeUserRole(guardian, roleUtils.GUARDIAN, cb)
+            ], (err) => {
+              if (err) {
+                res.send(`Error: ${err.message}`);
+              } else {
+                robot.brain.remove(REDIS_GUARDIAN_KEY);
+                res.send('Keeper of keys *dethroned!*');
+              }
+            });
+          }
           break;
         // hubot guardian set <name> - crown the keeper of the key
         case 'set':
@@ -78,7 +90,7 @@ module.exports = (robot) => {
       }
     // hubot guardian - keeper of the key
     } else {
-      const guardian = robot.brain.get('guardian');
+      const guardian = robot.brain.get(REDIS_GUARDIAN_KEY);
       if (!guardian) {
         res.send('Keeper of key unknown...');
         return;
