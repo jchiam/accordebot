@@ -1,12 +1,12 @@
 const firebase = require('firebase');
 
-const ALTO1_PROP = 'alto1';
-const ALTO2_PROP = 'alto2';
-const ALTO_CEM_PROP = 'alto_cem';
-const PRIME_PROP = 'prime';
-const PRIME_CEM_PROP = 'prime_cem';
-const BASS_PROP = 'bass';
-const CONTRA_GR_PROP = 'contra_gr';
+const ALTO1_PROP = '0:alto1';
+const ALTO2_PROP = '1:alto2';
+const PRIME_PROP = '2:prime';
+const ALTO_CEM_PROP = '3:alto_cem';
+const PRIME_CEM_PROP = '4:prime_cem';
+const BASS_PROP = '5:bass';
+const CONTRA_GR_PROP = '6:contra_gr';
 
 const sectionsRef = firebase.database().ref('/sections');
 
@@ -26,26 +26,33 @@ const getSections = (section, callback) => {
     if (snapshot.exists()) {
       callback(null, snapshot.val());
     } else {
-      callback(new Error(`Invalid section - ${section}`));
+      callback(new Error(`Invalid section ${parseSectionProp(section)}...`));
     }
   }, err => callback(err));
 };
 
+const parseSectionProp = (prop) => {
+  if (prop) {
+    return prop.split(':')[1];
+  }
+  return '';
+};
+
 const getSectionNameByProperty = (prop) => {
   switch (prop) {
-    case 'alto1':
+    case ALTO1_PROP:
       return 'Alto 1';
-    case 'alto2':
+    case ALTO2_PROP:
       return 'Alto 2';
-    case 'alto_cem':
-      return 'Alto Cembalo';
-    case 'prime':
+    case PRIME_PROP:
       return 'Prime';
-    case 'prime_cem':
+    case ALTO_CEM_PROP:
+      return 'Alto Cembalo';
+    case PRIME_CEM_PROP:
       return 'Prime Cembalo';
-    case 'bass':
+    case BASS_PROP:
       return 'Bass';
-    case 'contra_gr':
+    case CONTRA_GR_PROP:
       return 'Contrabass / Guitarron';
     default:
       return '';
@@ -94,5 +101,6 @@ const getSectionProperty = (section) => {
 };
 
 exports.getSections = getSections;
+exports.parseSectionProp = parseSectionProp;
 exports.getSectionNameByProperty = getSectionNameByProperty;
 exports.getSectionProperty = getSectionProperty;

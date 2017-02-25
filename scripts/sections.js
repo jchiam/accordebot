@@ -36,9 +36,8 @@ let processSingleSection = (res, section) => {
 
   async.waterfall([
     cb => auth.authenticateFirebase(cb),
-    cb => sectionUtils.getSections(parsedSection, cb),
-    (sect, cb) => utils.replaceArrWithPreferredNames(sect, cb)
-  ], (err, result) => {
+    cb => sectionUtils.getSections(parsedSection, cb)
+  ], (err, sections) => {
     if (err) {
       res.send(`Error: ${err.message}...`);
       return;
@@ -46,7 +45,7 @@ let processSingleSection = (res, section) => {
 
     const sectionField = [{
       title: sectionUtils.getSectionNameByProperty(parsedSection),
-      value: stringifyArrayToColumn(result)
+      value: processSection(sections)
     }];
     res.send(prepareSectionMsg(sectionField));
   });
@@ -55,28 +54,18 @@ let processSingleSection = (res, section) => {
 let processAllSections = (res) => {
   async.waterfall([
     cb => auth.authenticateFirebase(cb),
-    cb => sectionUtils.getSections('', cb),
-    (sections, cb) => async.mapValues(
-      sections,
-      (names, key, callback) => utils.replaceArrWithPreferredNames(names, callback),
-      (err, results) => {
-        if (err) {
-          cb(err);
-        } else {
-          cb(null, results);
-        }
-      })
-  ], (err, results) => {
+    cb => sectionUtils.getSections('', cb)
+  ], (err, sections) => {
     if (err) {
       res.send(`Error: ${err.message}...`);
       return;
     }
 
     const multiSectionFields = [];
-    for (const sect in results) {
+    for (const sect in sections) {
       multiSectionFields.push({
         title: sectionUtils.getSectionNameByProperty(sect),
-        value: stringifyArrayToColumn(results[sect]),
+        value: processSection(sections[sect]),
         short: true
       });
     }
@@ -97,4 +86,10 @@ let prepareSectionMsg = (fields) => {
   return msg;
 };
 
-let stringifyArrayToColumn = arr => arr.join('\n');
+let processSection = (section) => {
+  const names = [];
+  for (const name in section) {
+    names.push(name);
+  }
+  return names.join('\n');
+};
