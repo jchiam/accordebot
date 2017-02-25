@@ -75,9 +75,9 @@ let processAllSections = (res) => {
 
 let prepareSectionMsg = (fields) => {
   const msg = {
+    text: '*Accord\u00E9 Guitar Ensemble - Sections*',
     attachments: [{
       fallback: 'Accord\u00E9 Guitar Ensemble - Sections',
-      title: 'Accord\u00E9 Guitar Ensemble - Sections',
       color: '#96ec21',
       fields,
       footer: 'Brought to you by Accord\u00E9Bot'
