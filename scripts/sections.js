@@ -12,7 +12,6 @@
 //  jonathan
 
 const async = require('async');
-const utils = require('./utils/utils');
 const auth = require('./utils/auth');
 const sectionUtils = require('./utils/sections');
 

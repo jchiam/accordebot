@@ -176,15 +176,16 @@ const getUserSectionByKey = (key, callback) => {
   }
 
   const name = key.split(':')[0];
-  async.waterfall([
-    cb => sectionUtils.getSections('', cb)
-  ], (err, sections) => {
+  async.parallel({
+    name: cb => getUserName(key, cb),
+    sections: cb => sectionUtils.getSections('', cb)
+  }, (err, results) => {
     if (err) {
       callback(err);
     } else {
       const userSections = [];
-      for (const section in sections) {
-        if (sections[section].includes(name)) {
+      for (const section in results.sections) {
+        if (results.sections[section][results.name]) {
           userSections.push(sectionUtils.getSectionNameByProperty(section));
         }
       }
