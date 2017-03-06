@@ -10,9 +10,6 @@
 // Dependencies:
 //  "async": "^2.1.4"
 //
-// Configuration:
-//  SLACK_API_TOKEN
-//
 // Author:
 //  jonathan
 
