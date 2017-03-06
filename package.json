@@ -8,6 +8,7 @@
     "async": "^2.1.4",
     "fbgraph": "^1.4.1",
     "firebase": "^3.6.9",
+    "googleapis": "^17.1.0",
     "hubot": "^2.19.0",
     "hubot-help": "^0.2.0",
     "hubot-redis-brain": "0.0.3",
