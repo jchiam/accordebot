@@ -4,21 +4,30 @@
   "private": true,
   "author": "Jonathan Chiam <jczjchiam@gmail.com>",
   "description": "Bot for use with accorde guitar ensemble chat on slack",
+  "scripts": {
+    "start": "tsc && ./bin/hubot --adapter slack",
+    "lint": "eslint ./ --ext .ts,.js"
+  },
   "dependencies": {
-    "async": "^2.1.4",
-    "fbgraph": "^1.4.1",
-    "firebase": "^3.6.9",
-    "googleapis": "^17.1.0",
-    "hubot": "^2.19.0",
-    "hubot-help": "^0.2.0",
+    "async": "^3.1.0",
+    "fbgraph": "^1.4.4",
+    "firebase": "^7.2.1",
+    "googleapis": "^44.0.0",
+    "hubot": "^3.3.2",
+    "hubot-help": "^1.0.1",
     "hubot-scripts": "^2.17.2",
-    "hubot-slack": "^4.3.1"
+    "hubot-slack": "^4.7.1"
   },
   "engines": {
     "node": "7.5.0"
   },
   "devDependencies": {
-    "eslint": "^3.15.0",
-    "eslint-config-hubot-js": "^1.0.4"
+    "@types/async": "^3.0.3",
+    "@typescript-eslint/eslint-plugin": "^2.4.0",
+    "@typescript-eslint/parser": "^2.4.0",
+    "eslint": "^6.5.1",
+    "eslint-config-hubot-js": "^1.0.4",
+    "eslint-plugin-import": "^2.18.2",
+    "typescript": "^3.6.4"
   }
 }
